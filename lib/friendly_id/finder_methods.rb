@@ -23,6 +23,17 @@ module FriendlyId
       raise ActiveRecord::RecordNotFound
     end
 
+    #
+    # Softer find function, return nil when not found
+    #
+    def find_or_nil(*args)
+      id = args.first
+      return super if args.count != 1 || id.unfriendly_id?
+      first_by_friendly_id(id).tap {|result| return result unless result.nil?}
+      return super if potential_primary_key?(id)
+    end
+    
+    
     # Returns true if a record with the given id exists.
     def exists?(conditions = :none)
       return super unless conditions.friendly_id?
